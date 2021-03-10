@@ -1,5 +1,6 @@
 ﻿#include <iostream>
 #include <Windows.h>
+#define N 5
 
 using namespace std;
 
@@ -13,7 +14,7 @@ private:
 	void counterIncrease(int*);
 public:
 	DigitalCounter() {
-		n = 2;
+		n = 3;
 		counter = new int[n];
 		min_value = new int[n];
 		max_value = new int[n];
@@ -42,8 +43,9 @@ public:
 		min_value = new int[this->n];
 		max_value = new int[this->n];
 		for (int i = 0; i < n; i++) {
-			this->counter[i] = this->min_value[i] = dc.min_value[i];
-			this->max_value[i] = dc.max_value[i];
+			counter[i] = dc.counter[i];
+			min_value[i] = dc.min_value[i];
+			max_value[i] = dc.max_value[i];
 		}
 		this->timer_delay = dc.timer_delay;
 	}
@@ -95,7 +97,7 @@ public:
 		input >> DC.timer_delay;
 		return input;
 	}
-
+	
 	bool operator>(const DigitalCounter& dc) {
 		for (int i = 0; i < n; i++) {
 			if (this->counter[i] > dc.counter[i]) return true;
@@ -103,36 +105,97 @@ public:
 		}
 		return false;
 	}
+	bool operator<(const DigitalCounter& dc) {
+		for (int i = 0; i < n; i++) {
+			if (this->counter[i] < dc.counter[i]) return true;
+			else if (this->counter[i] > dc.counter[i]) return false;
+		}
+		return false;
+	}
+	DigitalCounter operator++() {
+		this->Increase();
+		return *this;
+	}
+	DigitalCounter operator++(int) {
+		this->Increase();
+		return *this;
+	}
+	DigitalCounter operator=(DigitalCounter& dc) {
+		n = dc.n;
+		delete[] min_value;
+		delete[] max_value;
+		delete[] counter;
+		counter = new int[n];
+		min_value = new int[n];
+		max_value = new int[n];
+		for (int i = 0; i < n; i++) {
+			counter[i] = dc.counter[i];
+			min_value[i] = dc.min_value[i];
+			max_value[i] = dc.max_value[i];
+		}
+		timer_delay = dc.timer_delay;
+		return *this;
+	}
 };
 
-void menu(DigitalCounter);
+void sort(DigitalCounter*, DigitalCounter*);
+void swap(DigitalCounter&, DigitalCounter&);
 
 int main() {
-	int arr[10] = { 0, 0, 0 };
-	int arr1[10] = { 23, 59, 59 };
-	int arr2[10] = { 1, 0, 1 };
-	int arr3[10] = { 1, 1, 0 };
-	
-	DigitalCounter dc1(3, arr, arr1, 10);
-	DigitalCounter dc2(3, arr, arr1, 10);
-	dc2.setCounter(arr2);
-	dc1.setCounter(arr3);
-	cout << "dc1:   " << dc1;
-	cout << "dc2:   " << dc2;
-	cout << (dc1 > dc2);
-	
+	DigitalCounter dc[N];
+	cout << "instructions:\n{max max max}\n{min min min}\n{counter counter counter}\ntimer\nEnter " << N << " counters: " << endl;
+	for (int i = 0; i < N; i++)
+		cin >> dc[i];
+	cout << " " << endl;
+	for (int i = 0; i < N; i++)
+		cout << dc[i];
+	sort(dc, dc + N-1);
+	cout  << endl << "Sorted:" << endl;
+	for (int i = 0; i < N; i++)
+		cout << dc[i];
+	for (int i = 0; i < N; i++)
+		dc[i]++;
+	sort(dc, dc + N - 1);
+	cout << endl << "Sorted after ++:" << endl;
+	for (int i = 0; i < N; i++)
+		cout << dc[i];
 	return 0;
 }
 
+void swap(DigitalCounter& e1, DigitalCounter& e2) {
+	DigitalCounter temp(e1);
+	e1 = e2;
+	e2 = temp;
+}
 
+void sort(DigitalCounter* ptrl, DigitalCounter* ptrr) {
+	if (ptrr < ptrl + 1) return;
+	if (ptrr == ptrl + 1) {
+		if (*ptrr < *ptrl)
+			swap(*ptrr, *ptrl);
+		return;
+	}
+	DigitalCounter* ptrc = ptrr, *ptr, *ptrs = ptrl;
+	while (*ptrs < *ptrc)
+		ptrs++;
+	ptr = ptrs++;
+	while (ptrs < ptrr) {
+		if (*ptrs < *ptrc) {
+			swap(*ptrs, *ptr);
+			ptr++;
+		}
+		ptrs++;
+	}
+	swap(*ptrc, *ptr);
+	sort(ptrl, ptr - 1);
+	sort(ptr + 1, ptrr);
+}
 
-void DigitalCounter::Increase()
-{
+void DigitalCounter::Increase() {
 	counterIncrease(counter + n - 1);
 }
 
-void DigitalCounter::counterIncrease(int* counter)
-{
+void DigitalCounter::counterIncrease(int* counter) {
 	(*counter)++;
 	if (*counter > max_value[counter - this->counter]) {
 		*counter = min_value[counter - this->counter];
@@ -140,76 +203,33 @@ void DigitalCounter::counterIncrease(int* counter)
 	}
 }
 
-void DigitalCounter::print()
-{
+void DigitalCounter::print() {
 	for (int i = 0; i < n - 1; i++) {
 		cout << counter[i] << " : ";
 	}
 	cout << counter[n - 1] << endl;
 }
 
-void menu(DigitalCounter obj) {
-	while (true)
-	{
-		int n = obj.getN();
-		int* arr1 = new int[n];
-		int* arr2 = new int[n];
-		system("cls");
-		int choise;
-		bool exit;
-		cout << "\n\n\t1.Start counter\n\t2.Set range\n\t3.Get range\n\t4.Set counter\n\t5.Get counter\n\t6.Set timer delay\n\t7.Get timer delay\n\t0.Exit\n\n";
-		cin >> choise;
-		switch (choise) {
-		case 1:
-			cout << "Counter starting...(Esc to stop)\n";
-			exit = false;
-			while (!exit) {
-				obj.print();						//виведення значення лічильника
-				obj.Increase();						//збільшення лічильника на 1
-				Sleep(obj.getTimerDelay());			//чекаємо задану кількість мілісекунд
-				if (GetAsyncKeyState(VK_ESCAPE)) {	//вловлюємо натискання esc
-					exit = true;
-				}
-			}
-			break;
-		case 2:
-			for (int i = 0; i < n; i++) {
-				cout << "Enter counter range[a b](a<b): ";
-				cin >> arr1[i] >> arr2[i];
-			}
-			obj.setMinimum(arr1);								//встановлюємо мінімум
-			obj.setMaximum(arr2);								//встановлюємо максимум
-			break;
-		case 3:
-			obj.getMinimum(arr1);
-			obj.getMaximum(arr2);
-			printf("Range:\n");
-			for (int i = 0; i < n; i++) printf("%d - %d\n", arr1[i], arr2[i]);
-			break;
-		case 4:
-			for (int i = 0; i < n; i++) {
-				cout << "Enter counter number: ";
-				cin >> arr1[i];
-			}
-			obj.setCounter(arr1);
-			break;
-		case 5:
-			obj.print();
-			break;
-		case 6:
-			int t;
-			cout << "Enter delay in milliseconds: ";
-			cin >> t;
-			obj.setTimerDelay(t);							//встановлюємо затримку
-			break;
-		case 7:
-			cout << "Timer delay: " << obj.getTimerDelay() << "ms";
-			break;
-		case 0:
-		default:
-			return;
-		}
-		cout << "\n\n";
-		system("pause");
-	}
-}
+
+/*
+	23 59 59
+	0 0 0
+	1 1 2
+	10
+	23 59 59
+	0 0 0
+	0 0 0
+	10
+	23 59 1
+	0 0 0
+	1 1 1
+	10
+	23 59 59
+	0 0 0
+	11 1 1
+	10
+	23 59 59
+	0 0 0
+	1 11 1
+	10
+	*/
