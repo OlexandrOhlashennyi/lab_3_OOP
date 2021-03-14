@@ -140,26 +140,33 @@ public:
 
 void sort(DigitalCounter*, DigitalCounter*);
 void swap(DigitalCounter&, DigitalCounter&);
+void print(DigitalCounter*);
 
 int main() {
 	DigitalCounter dc[N];
 	cout << "instructions:\n{max max max}\n{min min min}\n{counter counter counter}\ntimer\nEnter " << N << " counters: " << endl;
 	for (int i = 0; i < N; i++)
 		cin >> dc[i];
-	cout << " " << endl;
-	for (int i = 0; i < N; i++)
-		cout << dc[i];
+	
+	cout << endl << "Counters:\n";
+	print(dc);
 	sort(dc, dc + N-1);
+
 	cout  << endl << "Sorted:" << endl;
-	for (int i = 0; i < N; i++)
-		cout << dc[i];
+	print(dc);
+
 	for (int i = 0; i < N; i++)
 		dc[i]++;
 	sort(dc, dc + N - 1);
+
 	cout << endl << "Sorted after ++:" << endl;
+	print(dc);
+	return 0;
+}
+
+void print(DigitalCounter* dc) {
 	for (int i = 0; i < N; i++)
 		cout << dc[i];
-	return 0;
 }
 
 void swap(DigitalCounter& e1, DigitalCounter& e2) {
@@ -212,24 +219,24 @@ void DigitalCounter::print() {
 
 
 /*
-	23 59 59
-	0 0 0
-	1 1 2
-	10
-	23 59 59
-	0 0 0
-	0 0 0
-	10
-	23 59 1
-	0 0 0
-	1 1 1
-	10
-	23 59 59
-	0 0 0
-	11 1 1
-	10
-	23 59 59
-	0 0 0
-	1 11 1
-	10
-	*/
+23 59 59
+0 0 0
+1 1 2
+10
+23 59 59
+0 0 0
+0 0 0
+10
+23 59 1
+0 0 0
+1 1 1
+10
+23 59 59
+0 0 0
+11 1 1
+10
+23 59 59
+0 0 0
+1 11 1
+10
+*/
